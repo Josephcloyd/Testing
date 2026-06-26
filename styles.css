@@ -36,14 +36,18 @@ a {
   position: fixed;
   top: 0;
   left: 0;
-  z-index: 10;
+  z-index: 30;
   display: flex;
   width: 100%;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 18px clamp(18px, 4vw, 56px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+  padding: 14px clamp(18px, 4vw, 56px);
+  background: rgba(36, 49, 45, 0.92);
   color: var(--white);
+  box-shadow: 0 12px 34px rgba(36, 49, 45, 0.18);
+  backdrop-filter: blur(14px);
 }
 
 .brand {
@@ -650,7 +654,7 @@ h3 {
 
 @media (max-width: 920px) {
   .site-header {
-    position: absolute;
+    position: fixed;
   }
 
   .profile-layout,

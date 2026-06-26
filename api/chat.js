@@ -1,5 +1,12 @@
 const fallbackModel = "gpt-4.1-mini";
 
+function getApiKey() {
+  return (process.env.OPENAI_API_KEY || "")
+    .trim()
+    .replace(/^Bearer\s+/i, "")
+    .replace(/^["']|["']$/g, "");
+}
+
 function sendJson(response, body, status = 200) {
   response.setHeader("Content-Type", "application/json; charset=utf-8");
   response.setHeader("Cache-Control", "no-store");
@@ -49,11 +56,23 @@ Summary: ${profile.summary}
 }
 
 export default async function handler(request, response) {
+  if (request.method === "GET") {
+    const apiKey = getApiKey();
+
+    return sendJson(response, {
+      ok: true,
+      apiKeyConfigured: Boolean(apiKey),
+      model: process.env.OPENAI_MODEL || fallbackModel,
+    });
+  }
+
   if (request.method !== "POST") {
     return sendJson(response, { error: "Method not allowed" }, 405);
   }
 
-  if (!process.env.OPENAI_API_KEY) {
+  const apiKey = getApiKey();
+
+  if (!apiKey) {
     return sendJson(response, { error: "OPENAI_API_KEY is not configured" }, 503);
   }
 
@@ -89,7 +108,7 @@ export default async function handler(request, response) {
     const openaiResponse = await fetch("https://api.openai.com/v1/responses", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({

@@ -84,7 +84,23 @@ const chatInput = document.querySelector("#chatInput");
 const questionButtons = document.querySelectorAll("[data-chat-question]");
 const apiBadge = document.querySelector("#apiBadge");
 
+function hasChatElements() {
+  return Boolean(
+    chatPanel &&
+      chatToggle &&
+      chatClose &&
+      chatMessages &&
+      chatForm &&
+      chatInput &&
+      apiBadge
+  );
+}
+
 function addMessage(text, type = "bot") {
+  if (!chatMessages) {
+    return;
+  }
+
   const message = document.createElement("div");
   message.className = `message ${type}`;
   message.textContent = text;
@@ -93,11 +109,19 @@ function addMessage(text, type = "bot") {
 }
 
 function setThinking(isThinking) {
+  if (!chatForm || !chatInput) {
+    return;
+  }
+
   chatForm.classList.toggle("is-thinking", isThinking);
   chatInput.disabled = isThinking;
 }
 
 function updateApiBadge(status) {
+  if (!apiBadge) {
+    return;
+  }
+
   if (status === "live") {
     apiBadge.textContent = "AI API ready";
     apiBadge.classList.add("live");
@@ -109,6 +133,10 @@ function updateApiBadge(status) {
 }
 
 function openChat() {
+  if (!hasChatElements()) {
+    return;
+  }
+
   chatPanel.hidden = false;
   chatToggle.setAttribute("aria-expanded", "true");
 
@@ -122,6 +150,10 @@ function openChat() {
 }
 
 function closeChat() {
+  if (!chatPanel || !chatToggle) {
+    return;
+  }
+
   chatPanel.hidden = true;
   chatToggle.setAttribute("aria-expanded", "false");
 }
@@ -159,17 +191,27 @@ function getLocalAnswer(question) {
 }
 
 async function getApiAnswer(question) {
-  const response = await fetch("/api/chat", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      question,
-      profile,
-      history: chatState.history.slice(-6),
-    }),
-  });
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), 12000);
+
+  let response;
+
+  try {
+    response = await fetch("/api/chat", {
+      method: "POST",
+      signal: controller.signal,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        question,
+        profile,
+        history: chatState.history.slice(-6),
+      }),
+    });
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
 
   if (!response.ok) {
     const errorText = await response.text();
@@ -237,24 +279,26 @@ async function askQuestion(question) {
   }
 }
 
-chatToggle.addEventListener("click", () => {
-  if (chatPanel.hidden) {
-    openChat();
-  } else {
-    closeChat();
-  }
-});
+if (hasChatElements()) {
+  chatToggle.addEventListener("click", () => {
+    if (chatPanel.hidden) {
+      openChat();
+    } else {
+      closeChat();
+    }
+  });
 
-chatClose.addEventListener("click", closeChat);
+  chatClose.addEventListener("click", closeChat);
 
-chatForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  askQuestion(chatInput.value);
-  chatInput.value = "";
-});
+  chatForm.addEventListener("submit", (event) => {
+    event.preventDefault();
+    askQuestion(chatInput.value);
+    chatInput.value = "";
+  });
 
-questionButtons.forEach((button) => {
-  button.addEventListener("click", () => askQuestion(button.dataset.chatQuestion));
-});
+  questionButtons.forEach((button) => {
+    button.addEventListener("click", () => askQuestion(button.dataset.chatQuestion));
+  });
 
-updateApiBadge("local");
+  updateApiBadge("local");
+}
