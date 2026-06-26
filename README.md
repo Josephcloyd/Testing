@@ -12,11 +12,15 @@ Deployment-ready static portfolio with an optional OpenAI-powered HR chat assist
 
 ## Deploy on Vercel
 
-1. Create a new Vercel project using this `outputs` folder as the project root.
+1. Create a new Vercel project using this folder as the project root.
 2. Add environment variables:
    - `OPENAI_API_KEY`
    - `OPENAI_MODEL` optional, defaults to `gpt-4.1-mini`
 3. Deploy.
+
+This project uses `index.html` as the site entry point. Do not add or deploy an
+`index.php` entry file on Vercel because PHP is not executed by this setup and
+can be served as a download instead of a webpage.
 
 If `OPENAI_API_KEY` is not set, the chatbot still works in local fallback mode with built-in portfolio answers.
 
