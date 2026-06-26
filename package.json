@@ -1,0 +1,13 @@
+{
+  "name": "allison-rose-suarez-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "vercel dev",
+    "check": "node --check script.js && node --check api/chat.js"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
