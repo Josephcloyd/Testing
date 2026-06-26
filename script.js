@@ -172,7 +172,8 @@ async function getApiAnswer(question) {
   });
 
   if (!response.ok) {
-    throw new Error("API endpoint unavailable");
+    const errorText = await response.text();
+    throw new Error(errorText || "API endpoint unavailable");
   }
 
   const data = await response.json();
@@ -218,13 +219,22 @@ async function askQuestion(question) {
   chatState.history.push({ role: "user", content: cleanQuestion });
   setThinking(true);
 
-  const answer = await getAnswer(cleanQuestion);
+  try {
+    const answer = await getAnswer(cleanQuestion);
 
-  window.setTimeout(() => {
-    addMessage(answer);
-    chatState.history.push({ role: "assistant", content: answer });
+    window.setTimeout(() => {
+      addMessage(answer);
+      chatState.history.push({ role: "assistant", content: answer });
+      setThinking(false);
+    }, 220);
+  } catch (error) {
+    const fallbackAnswer = getLocalAnswer(cleanQuestion);
+    chatState.apiAvailable = false;
+    updateApiBadge("local");
+    addMessage(fallbackAnswer);
+    chatState.history.push({ role: "assistant", content: fallbackAnswer });
     setThinking(false);
-  }, 220);
+  }
 }
 
 chatToggle.addEventListener("click", () => {
