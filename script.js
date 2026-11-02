@@ -2,7 +2,7 @@ const profile = {
   name: "Allison Rose Suarez",
   role: "tourism student",
   education:
-    "Allison is studying Bachelor of Science in Tourism Management Entrepreneurship at Cebu Technological University, M.J. Cuenco Ave., Corner R. Palma St., Cebu City. Her academic year is 2024 to present.",
+    "Allison is studying Bachelor of Science in Tourism Management Entrepreneurship at Cebu Technological University, M.J. Cuenco Ave., Corner R. Palma St., Cebu City. Her academic year is 2024 to present. Before that, she completed senior high school at Tisa National High School, Francisco Llamas Street, Tisa, Cebu City, in the Bread and Pastry Production / Food and Beverage Services strand, S.Y. 2022 to 2024.",
   experience:
     "Allison worked as a part-time McDonald's crew member from November 2024 to 2025 and completed an internship at Dessert Factory in April 2024. She gained customer service, food service, teamwork, workplace discipline, and fast-paced service experience.",
   skills:

@@ -1,0 +1,278 @@
+/*
+ * SRZ crossed-arrows logo.
+ * Static styling + the intro reveal. Intro visuals run in pure CSS so they finish
+ * even if JavaScript is slow; brand/logo.js adds the navbar handoff, idle pulse
+ * and hover "release".
+ */
+
+@property --logo-shaft {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 2.2;
+}
+
+@property --logo-glyph {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 3.2;
+}
+
+/* ---------- Parts ---------- */
+
+.logo-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.logo-mark,
+.logo-word {
+  display: block;
+  flex: none;
+  overflow: visible;
+  color: var(--signal);
+}
+
+.logo-mark {
+  width: var(--logo-size, 46px);
+  height: auto;
+  aspect-ratio: 240 / 230;
+}
+
+.logo-word {
+  width: auto;
+  height: var(--word-size, 19px);
+  aspect-ratio: 135 / 60;
+  fill: currentColor;
+}
+
+.logo-shaft {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--logo-shaft);
+  stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+.logo-head,
+.logo-fletch {
+  fill: currentColor;
+}
+
+.logo-head {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.logo-glyph {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: var(--logo-glyph);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.logo-letter {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+/* ---------- Header lockup ---------- */
+
+.brand {
+  /* Small sizes need heavier strokes (viewBox units) to stay crisp. */
+  --logo-size: 46px;
+  --word-size: 19px;
+  --logo-shaft: 6;
+  --logo-glyph: 7.5;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  border-radius: 6px;
+}
+
+.brand .logo-mark,
+.brand .logo-word {
+  transition: color var(--dur-micro) var(--ease-out);
+}
+
+/* Non-motion feedback: always present, and the only hover cue under reduced motion. */
+.brand:hover .logo-mark,
+.brand:hover .logo-word,
+.brand:focus-visible .logo-mark,
+.brand:focus-visible .logo-word {
+  color: var(--signal-bright);
+}
+
+.brand:focus-visible {
+  outline: 2px solid var(--signal-bright);
+  outline-offset: 6px;
+}
+
+@media (max-width: 640px) {
+  .brand {
+    --logo-size: 40px;
+    --word-size: 16px;
+    gap: 0.5rem;
+  }
+}
+
+/* ---------- Intro (first visit per session) ---------- */
+
+.intro {
+  display: none;
+}
+
+.intro-play .intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  /* Failsafe: if the handoff script never runs, the intro still clears itself. */
+  animation: intro-failsafe 450ms 2.4s var(--ease-out) forwards;
+}
+
+.intro-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--night);
+}
+
+.intro-lockup {
+  --logo-size: clamp(170px, 46vw, 250px);
+  --logo-shaft: 2.2;
+  --logo-glyph: 3.2;
+  --signal: var(--pink);
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: calc(var(--logo-size) * 0.13);
+}
+
+.intro .logo-word {
+  width: calc(var(--logo-size) * 0.5625);
+  height: auto;
+}
+
+.intro .logo-mark,
+.intro .logo-word {
+  transform-origin: 0 0;
+}
+
+/* Hidden *and* unfocusable while the intro owns the logo. */
+.intro-play .site-header .brand {
+  opacity: 0;
+  visibility: hidden;
+  animation: brand-failsafe 450ms 2.4s var(--ease-out) forwards;
+}
+
+/*
+ * Choreography (ms)
+ *   arrows shoot in   0–500   (shaft draws tail → tip, head pops on arrival)
+ *   glyphs trace      460–1160 (clockwise from the A)
+ *   SRZ rises         700–1280
+ *   logo.js: mark flies into the navbar 1250–1750, navbar "SRZ" unrolls 1750–2000
+ */
+:is(.intro-play .intro, .logo-assemble.is-in) .logo-arrow-body {
+  animation: logo-arrow-shoot 480ms var(--ease-out) both;
+}
+
+:is(.intro-play .intro, .logo-assemble.is-in) .logo-shaft {
+  animation: logo-draw 420ms var(--ease-out) both;
+}
+
+:is(.intro-play .intro, .logo-assemble.is-in) .logo-fletch {
+  animation: logo-fade-in 160ms var(--ease-out) both;
+}
+
+:is(.intro-play .intro, .logo-assemble.is-in) .logo-head {
+  animation: logo-pop 360ms 330ms var(--ease-settle) both;
+}
+
+:is(.intro-play .intro, .logo-assemble.is-in) .logo-arrow--b .logo-arrow-body,
+:is(.intro-play .intro, .logo-assemble.is-in) .logo-arrow--b .logo-shaft,
+:is(.intro-play .intro, .logo-assemble.is-in) .logo-arrow--b .logo-fletch {
+  animation-delay: 80ms;
+}
+
+:is(.intro-play .intro, .logo-assemble.is-in) .logo-arrow--b .logo-head {
+  animation-delay: 410ms;
+}
+
+:is(.intro-play .intro, .logo-assemble.is-in) .logo-glyph {
+  animation: logo-glyph-trace 460ms var(--ease-out) both;
+}
+
+:is(.intro-play .intro, .logo-assemble.is-in) .logo-glyph--a { animation-delay: 460ms; }
+:is(.intro-play .intro, .logo-assemble.is-in) .logo-glyph--square { animation-delay: 540ms; }
+:is(.intro-play .intro, .logo-assemble.is-in) .logo-glyph--triangle { animation-delay: 620ms; }
+:is(.intro-play .intro, .logo-assemble.is-in) .logo-glyph--gem { animation-delay: 700ms; }
+
+:is(.intro-play .intro, .logo-assemble.is-in) .logo-letter {
+  animation: logo-letter-rise 480ms var(--ease-out) both;
+}
+
+:is(.intro-play .intro, .logo-assemble.is-in) .logo-letter:nth-child(1) { animation-delay: 700ms; }
+:is(.intro-play .intro, .logo-assemble.is-in) .logo-letter:nth-child(2) { animation-delay: 750ms; }
+:is(.intro-play .intro, .logo-assemble.is-in) .logo-letter:nth-child(3) { animation-delay: 800ms; }
+
+@keyframes logo-arrow-shoot {
+  from { transform: translateY(36px); }
+}
+
+@keyframes logo-draw {
+  from { stroke-dashoffset: 1; opacity: 0; }
+  12% { opacity: 1; }
+  to { stroke-dashoffset: 0; opacity: 1; }
+}
+
+@keyframes logo-fade-in {
+  from { opacity: 0; }
+}
+
+@keyframes logo-pop {
+  from { transform: scale(0); }
+}
+
+@keyframes logo-glyph-trace {
+  from { stroke-dashoffset: 1; opacity: 0; transform: scale(0.82); }
+  15% { opacity: 1; }
+  to { stroke-dashoffset: 0; opacity: 1; transform: none; }
+}
+
+@keyframes logo-letter-rise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes intro-failsafe {
+  to {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes brand-failsafe {
+  to {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .intro-play .intro {
+    display: none;
+  }
+
+  .intro-play .site-header .brand {
+    opacity: 1;
+    animation: none;
+  }
+}
